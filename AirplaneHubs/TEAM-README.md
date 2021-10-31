@@ -57,8 +57,8 @@ In der folgenden Tabelle beschreiben wir die benötigten Attribute aus den Daten
 | ----------------    | --------------  | ------------------    | ----------------------------- |
 | DLH439			  | KSEA			| LSZH					| 2021-08-01 00:00:00+00:00     |
 
-Da nicht immer alle Daten vorhanden sind, müssen Datensätze bei welcher "Origin" und "Destination" fehlen, 
-aussortiert werden da diese essenziell zur Durchführung der Analysen sind. 
+Da nicht immer alle Daten vorhanden sind, müssen Datensätze bei welcher "Origin" und "Destination" fehlen, aussortiert werden da diese essenziell zur Durchführung der Analysen sind. 
+Die Anzahl Flüge werden beim einholen der Daten überprüft und jeweils aufsummiert wehalb ein Flug danach ein weiteres Attribut "noFlights" - Number of Flights, enthält. Dieses repräsentiert später das Gewicht der Kante. 
 
 
 ## Milestones
