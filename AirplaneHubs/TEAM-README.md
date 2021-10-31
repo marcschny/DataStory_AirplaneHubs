@@ -24,7 +24,7 @@ Neu werden Analysen durchgeführt, um folgende Fragen zu beantworten:
 ## Datenquellen
 Wir verwenden folgende Datenquellen für die Data-Story - Download vom [26.10.2021]:
 - Flugdaten - OpenSky Network API (https://opensky-network.org/)
-- Flugplätze (https://ourairports.com/data/)
+- Flugplätze (https://datahub.io/core/airport-codes)
 - Emissionsberechnung (https://www.klimaneutral-handeln.de/php/kompens-berechnen.php)
 
 
@@ -41,11 +41,11 @@ Nach Ausführung der Datensammlung befindet sich ein data.csv-File unter "data".
 Wie bereits kurz in der Data Collection angedeutet, benutzen wir zwei unterschiedliche Datenquellen. 
 In der folgenden Tabelle beschreiben wir die benötigten Attribute aus den Datenquellen. 
 
-[airports.csv](https://ourairports.com/data/ "Quelle Flughäfen")
+[airports.csv](https://datahub.io/core/airport-codes "Quelle Flughäfen")
 
-| ID (Integer) | Name (String)	| Latitude 	(Double) | Longitude (Double) | Ident - ICAO-Code (String)	|
-| ------------ | -------------- | ------------------ | ------------------ | ------------------ 			|
-| 4505 		   | Zuerich Airport| 47.458056 		 | 8.548056 	      | LSZH						|
+| Ident - ICAO-Code (String) | Name (String)	| Latitude 	(Double) | Longitude (Double) |
+| ------------       |    ---------------- | ------------------ | ------------------      |
+| LSZH 		         | Zuerich Airport     | 47.458056 		    | 8.548056 	              | 
 
 [fluege_jahr_monat.csv](https://zenodo.org/record/5557026#.YX02JhxCSM- "Quelle Flugbewegungen")
 
