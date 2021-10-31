@@ -34,7 +34,7 @@ def readFlightData(file):
 
 def readAirports():
     airports = []
-    with open(r'data/raw/airport-codes_csv.csv',newline='\n', encoding="ISO-8859-1") as csv_file:
+    with open(r'data/raw/airport-codes_csv_raw.csv',newline='\n', encoding="ISO-8859-1") as csv_file:
         data = csv.DictReader(csv_file)
 
         for row in data:
@@ -69,7 +69,7 @@ def save_flights(flights, fields, name):
             writer.writerow([f.callsign, f.origin, f.destination, f.day, f.noFlights])
 
 def save_airports(fields):
-    with open('airports.csv', 'w') as f:
+    with open('data/raw/airports.csv', 'w') as f:
         writer = csv.writer(f, delimiter=',', lineterminator='\n')
 
         writer.writerow(fields)
@@ -78,16 +78,16 @@ def save_airports(fields):
             writer.writerow([a.ident, a.name, a.latitude, a.longitude])
             
 flights_sep = readFlightData("flightlist_09_2021_raw.csv")
-flights_mai = readData("flightlist_05_2021_raw.csv")
+flights_mai = readFlightData("flightlist_05_2021_raw.csv")
 
-flights_sep_no = checkForDoubleFlights(flights_sep)
-flights_mai_no = checkForDoubleFlights(flights_mai)
+#flights_sep_no = checkForDoubleFlights(flights_sep)
+#flights_mai_no = checkForDoubleFlights(flights_mai)
 
 airports = readAirports()
 
 flight_fields = ["Callsign", "Origin", "Destination", "Day","noFlights"]
 airport_fields = ["Ident", "Name", "Latitude", "Longitude"]
 
-save_flights(flights_mai_no, flight_fields, "flights_05")
-save_flights(flights_sep_no, flight_fields, "flights_09")
+save_flights(flights_mai, flight_fields, "data/raw/flights_mai")
+save_flights(flights_sep, flight_fields, "data/raw/flights_sep")
 save_airports(airport_fields)

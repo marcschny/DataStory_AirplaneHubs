@@ -31,10 +31,14 @@ Wir verwenden folgende Datenquellen für die Data-Story - Download vom [26.10.20
 ## Data Collection
 Die Datensammlung kann mittels Script "fetch_data.py" ausgeführt werden. 
 Um diese zu starten sind zwingend die Rohdaten wie folgt abzulegen: 
-- data/raw/fluege_jahr_monat.csv
-- data/raw/airports.csv
+- data/raw/fluege_09_2021_raw.csv
+- data/raw/fluege_05_2021_raw.csv
+- data/raw/airports-codes_csv_raw.csv
 
-Nach Ausführung der Datensammlung befindet sich ein data.csv-File unter "data". 
+ACHTUNG: Da wir alle Flüge auf doppeltes vorkommen prüfen, geht der Vorgang sehr lange. 
+Wir suchen aktuell noch eine Methode wie wir dies beschleunigen/verbessern.
+Infolgedessen sind Zeile 83 & 84 auskommentiert.
+Nach Ausführung der Datensammlung befindet sich jeweils ein Flug-File sowie Airport-File unter "data". 
 
 
 ## Data Description . Raw
