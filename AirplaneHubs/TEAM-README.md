@@ -43,26 +43,42 @@ Nach Ausführung der Datensammlung befindet sich jeweils ein Flug-File sowie Air
 
 ## Data Description . Raw
 Wie bereits kurz in der Data Collection angedeutet, benutzen wir zwei unterschiedliche Datenquellen. 
-In der folgenden Tabelle beschreiben wir die benötigten Attribute aus den Datenquellen. 
+In der folgenden Tabelle sind alle Attribute aus den Datenquellen aufgezeigt. 
 
 [airports.csv](https://datahub.io/core/airport-codes "Quelle Flughäfen")
 
-| Ident - ICAO-Code (String) | Name (String)	| Latitude 	(Double) | Longitude (Double) |
-| ------------       |    ---------------- | ------------------ | ------------------      |
-| LSZH 		         | Zuerich Airport     | 47.458056 		    | 8.548056 	              | 
+| Ident (String) | Type (String)    | Name (String)	        | Elevation Feet (Int)  | Continent (String)    | ISO-Country (String)  | ISO-Region (String)   | Municipality (String) | GPS-Code (String) | Iata-Code (String)    | Local-Code (String)   | Coordinates (String)      |
+| ------------   |    ------------- | -------------         | ------------------    | ------------------    | --------------        | ----------            | ------------------    | ---------------   | ----------            | -------------------   | ----------                |
+| 00AA           | small_airport    | Aero- B Ranch Airport	| 3435          	    | NA                    | US                    | US-KS                 | Leoti                 | 00AA              | -                     | 00AA                  | "-101.473911, 38.704022"  |
 
 [fluege_jahr_monat.csv](https://zenodo.org/record/5557026#.YX02JhxCSM- "Quelle Flugbewegungen")
 
-| Callsign (String)   | Origin (String)	| Destination (String)	| Day (UTC Day)					|
-| ----------------    | --------------  | ------------------    | ----------------------------- |
-| DLH439			  | KSEA			| LSZH					| 2021-08-01 00:00:00+00:00     |
+| Callsign (String)   | Number (String) | Aircraft_UID (String)                  | Typecode (String)        | Origin (String)   | Destination (Sting)   | Firstseen (String)        | Lastseen (String)          | Day (String)               | Latitude 1 (String)     | Longitude 1 (String)      | Altitude 1 (String)       | Latitude 2 (String)       | Longitude 2 (String)      | Altitude 2 (String)       |
+| ----------------    | --------------  | ------------------                     | ---------------------    | ------------      | -------------         | ------------              | ---------------            | ---------                  | -----------             | ---------------------     | ------------------        | ----------------------    | ----------------------    | --------------------      | 
+| CPA343			  | -   			| a6ffcb66-91a7-4cbf-9afb-fd2b9130fd9	 | A359     		        | YMML              | EGKK                  | 2018-12-31 04:51:50+00:00 | 2019-01-01 05:00:27+00:00  | 2019-01-01 00:00:00+00:00  | -37.68667602539062      | 144.84135404546208        | 304.8                     | 51.15701293945312         | -0.126342773437           | 83.82000000000002         |
 
-Da nicht immer alle Daten vorhanden sind, müssen Datensätze bei welcher "Origin" und "Destination" fehlen, aussortiert werden da diese essenziell zur Durchführung der Analysen sind. 
-Die Anzahl Flüge werden beim einholen der Daten überprüft und jeweils aufsummiert wehalb ein Flug danach ein weiteres Attribut "noFlights" - Number of Flights, enthält. Dieses repräsentiert später das Gewicht der Kante. 
+
+## Data Description . Preprocessed
+In der folgenden Tabelle beschreiben wir die benötigten Attribute aus den Datenquellen.
+
+#### airports.csv
+
+| Ident (String) | Name (String)	        | Latitude (Double)         | Longitude (Double)       |
+| ------------   | -------------            | ----------                | ----------               |
+| CPA343         | Aero- B Ranch Airport	| -101.473911               |  38.704022               |
+
+#### flights.csv
+
+| Callsign (String)   | Origin (String)   | Destination (Sting)   | Day (String)               |
+| ----------------    | ------------      | -------------         | ---------                  |
+| 00AA  			  | YMML              | EGKK                  | 2019-01-01 00:00:00+00:00  | 
+
+Da nicht immer alle Daten vorhanden sind, müssen Datensätze bei welcher "Origin" und "Destination" fehlen, aussortiert werden da diese essenziell zur Durchführung der Analysen sind.
+
 
 
 ## Milestones
 - 10.10.21 - Thema und Datensatz ist festgelegt
 - 31.10.21 - Rohdaten sind gesammelt und qualitativ beschrieben & dokumentiert. 
-- 12.12.21 - Daten sind explorativ visualisiert. Kernaussagen sind mit Visualisierungen illustriert. 
+- 19.12.21 - Daten sind explorativ visualisiert. Kernaussagen sind mit Visualisierungen illustriert. 
 - 16.01.22 - Abgabe
