@@ -41,7 +41,7 @@ Infolgedessen sind Zeile 83 & 84 auskommentiert.
 Nach Ausführung der Datensammlung befindet sich jeweils ein Flug-File sowie Airport-File unter "data". 
 
 
-## Data Description . Raw
+## Data Description: Raw
 Wie bereits kurz in der Data Collection angedeutet, benutzen wir zwei unterschiedliche Datenquellen. 
 In der folgenden Tabelle sind alle Attribute aus den Datenquellen aufgezeigt. 
 
@@ -58,8 +58,8 @@ In der folgenden Tabelle sind alle Attribute aus den Datenquellen aufgezeigt.
 | CPA343			  | -   			| a6ffcb66-91a7-4cbf-9afb-fd2b9130fd9	 | A359     		        | YMML              | EGKK                  | 2018-12-31 04:51:50+00:00 | 2019-01-01 05:00:27+00:00  | 2019-01-01 00:00:00+00:00  | -37.68667602539062      | 144.84135404546208        | 304.8                     | 51.15701293945312         | -0.126342773437           | 83.82000000000002         |
 
 
-## Data Description . Preprocessed
-In der folgenden Tabelle beschreiben wir die benötigten Attribute aus den Datenquellen.
+## Data Description: Preprocessed
+In der folgenden Tabelle beschreiben wir die benötigten Attribute aus den Datenquellen; Dabei ist jeweils die Attribute, dessen Typ sowie ein Beispiel enthalten (Alle Variablen sind 1-Dimensional):
 
 #### airports.csv
 
@@ -76,9 +76,37 @@ In der folgenden Tabelle beschreiben wir die benötigten Attribute aus den Daten
 Da nicht immer alle Daten vorhanden sind, müssen Datensätze bei welcher "Origin" und "Destination" fehlen, aussortiert werden da diese essenziell zur Durchführung der Analysen sind.
 
 
+## Descriptive Stats
+Wer hat die Daten erhoben? </br>
+Siehe [Datenquellen](#Datenquellen) </br>
+
+Wie wurden die Daten erhoben? </br>
+Die Datensätze wurden heruntergeladen (siehe ebenfalls [Datenquellen](#Datenquellen)) </br>
+
+Wann wurden die Daten erhoben? </br>
+Siehe [Datenquellen](#Datenquellen) </br>
+
+Wie viele Datenpunkte (n) wurden erfasst? </br>
+1'048'576 Flüge und 57'422 Flughäfen </br>
+
+Wurden Attribute präprozessiert? Falls ja, wie? </br>
+ Das Attribute "Coordinates" aus den Flughafen-Rohdaten wurde präprozessiert. Dabei wird der Tupel "Coordinates" 
+bei jedem Flughafen gesplittet, und auf zwei neue Attribute "Latitude" und "Longtitude" aufgeteilt. </br>
+
+Wurden die Daten gefiltert? Falls ja, wie? </br>
+ Beim Einlesen der Flug-Rohdaten wird jeweils überprüft "Origin" und "Destination" des Fluges vorhanden sind.
+Sind diese Felder leer, werden sie heraussortiert.</br>
+
+Welche Merkmale, Variablen, Attribute wurden erfasst? </br>
+ Siehe [Data Description: Preprocessed](#Data-Description:-Preprocessed)</br>
+
+### Qualitative Beschreibung der Variablen¶
+Angaben zu den Variablen, Merkmalen und Typen befinden sich unter [Data Description: Preprocessed](#Data-Description:-Preprocessed)
+
 
 ## Milestones
 - 10.10.21 - Thema und Datensatz ist festgelegt
 - 31.10.21 - Rohdaten sind gesammelt und qualitativ beschrieben & dokumentiert. 
-- 19.12.21 - Daten sind explorativ visualisiert. Kernaussagen sind mit Visualisierungen illustriert. 
+- 06.12.21 - Deskritive Statistiken (Jupyter Notebook)
+- 19.12.21 - Daten sind explorativ visualisiert. Kernaussagen sind mit Visualisierungen illustriert.
 - 16.01.22 - Abgabe
