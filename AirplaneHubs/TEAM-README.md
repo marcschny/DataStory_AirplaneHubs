@@ -60,9 +60,23 @@ In der folgenden Tabelle beschreiben wir die benötigten Attribute aus den Daten
 Da nicht immer alle Daten vorhanden sind, müssen Datensätze bei welcher "Origin" und "Destination" fehlen, aussortiert werden da diese essenziell zur Durchführung der Analysen sind. 
 Die Anzahl Flüge werden beim einholen der Daten überprüft und jeweils aufsummiert wehalb ein Flug danach ein weiteres Attribut "noFlights" - Number of Flights, enthält. Dieses repräsentiert später das Gewicht der Kante. 
 
+## Descriptive Stats
+Wer hat die Daten erhoben?
+Wie wurden die Daten erhoben?
+Wann wurden die Daten erhoben?
+Wie viele Datenpunkte (n) wurden erfasst?
+Wurden Attribute präprozessiert? Falls ja, wie?
+Wurden die Daten gefiltert? Falls ja, wie?
+Welche Merkmale, Variablen, Attribute wurden erfasst?
+
+### Qualitative Beschreibung der Variablen¶
+Welche Merkmale, Variablen, Attribute wurden erfasst?
+Was für Dimensionen / Masseinheiten haben die Variablen?
+Von was für einem Variablentyp sind die Variablen?
 
 ## Milestones
 - 10.10.21 - Thema und Datensatz ist festgelegt
 - 31.10.21 - Rohdaten sind gesammelt und qualitativ beschrieben & dokumentiert. 
+- 06.12.21 - Deskritive Statistiken (Jupyter Notebook)
 - 12.12.21 - Daten sind explorativ visualisiert. Kernaussagen sind mit Visualisierungen illustriert. 
 - 16.01.22 - Abgabe
