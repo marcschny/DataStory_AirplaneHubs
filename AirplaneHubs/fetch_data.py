@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+
+from datetime import datetime
 import csv
 import pandas as pd
 
@@ -77,31 +79,50 @@ import pandas as pd
 #######################################################
 # New Version because we learned <3 Pandas <3
 flights_path_mai = "data/raw/flightlist_05_2021_raw.csv"
-flights_path_sep = "data/raw/flightlist_05_2021_raw.csv"
+flights_path_sep = "data/raw/flightlist_09_2021_raw.csv"
 airports = "data/raw/airport-codes_csv_raw.csv"
 
-flight_fields = ["Callsign", "Origin", "Destination", "Day"]
-airport_fields = ["Ident", "Name", "Latitude", "Longitude"]
-
 def load_flights():
+    '''Loading two flightlists.csv and merge to one structured DataFrame'''
+    
     #Loading Flights
     data_mai = pd.read_csv(flights_path_mai,   delimiter=',')
     data_sep = pd.read_csv(flights_path_sep,   delimiter=',')
     
-    df_f = pd.concat([data_mai, data_sep], ignore_index=True)
-    df_f = df_f[(df_f['origin'].notnull()) & (df_f['destination'].notnull())].reset_index()
-    df_f['callsign'].fillna('UNDEF', inplace=True)
+    df = pd.concat([data_mai, data_sep], ignore_index=True)
+    df = df[(df['origin'].notnull()) & (df['destination'].notnull())].reset_index()
+    df['callsign'].fillna('UNDEF', inplace=True)
+    df['day'] = df['day'].str.split(' ').str[0]
+    df['day'] = df['day'].apply(str_to_datetime)
     
-    df_f = df_f.drop(['index','number', 'aircraft_uid', 'typecode','firstseen','lastseen','latitude_1','longitude_1','altitude_1','latitude_2','longitude_2','altitude_2'], axis=1)
+    df['callsign'] = df['callsign'].astype(str)
+    df['origin'] = df['origin'].astype(str)
+    df['destination'] = df['destination'].astype(str)
     
-    return df_f
+    df = df.drop(['index','number', 'aircraft_uid', 'typecode','firstseen','lastseen','latitude_1','longitude_1','altitude_1','latitude_2','longitude_2','altitude_2'], axis=1)
+    
+    return df
 
 def load_airports():
-    #Loading Airports
-    df_a = pd.read_csv(airports,   delimiter=',')
-    df_a['latitude'] = df_a['coordinates'].str.split(',').str[0]
-    df_a['longitude'] = df_a['coordinates'].str.split(',').str[1]
+    '''Loading Airports.csv and structure DataFrame'''
+    se_a = pd.read_csv(airports,   delimiter=',')
     
-    df_a = df_a.drop(['type', 'elevation_ft', 'continent', 'iso_country', 'iso_region', 'municipality', 'gps_code', 'iata_code', 'local_code', 'coordinates'], axis=1)
+    df = pd.DataFrame(se_a)
+    df['latitude'] = df['coordinates'].str.split(',').str[0]
+    df['longitude'] = df['coordinates'].str.split(',').str[1]
+    df['latitude'] = df['latitude'].astype(float)
+    df['longitude'] = df['longitude'].astype(float)
     
-    return df_a
+    df['ident'] = df['ident'].astype(str)
+    df['type'] = df['type'].astype(str)
+    df['name'] = df['name'].astype(str)
+    
+    df = df.drop(['elevation_ft', 'continent', 'iso_country', 'iso_region', 'municipality', 'gps_code', 'iata_code', 'local_code', 'coordinates'], axis=1)
+    
+    return df
+
+def str_to_datetime(date):
+    '''Convert a str of "YYYY-MM-DD" strings to datetime objects.'''
+    y, m, d = (int(x) for x in date.split("-"))
+    date = datetime(y, m, d)
+    return date
