@@ -46,16 +46,7 @@ def readAirports():
                 pass
     return airports
 
-def checkForDoubleFlights(flights):
-    for i in range(len(flights)-1):
-        j = i+1
-        while j < len(flights):
-            #if flight appears twice -> increase its noFlights and delete the second flight
-            if flights[i].origin == flights[j].origin and flights[i].destination == flights[j].destination:
-                flights[i].noFlights += 1
-                flights.remove(flights[j])
-            j += 1
-    return flights
+
 
 def save_flights(flights, fields, name):
     filename = "%s.csv" % name
