@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 from datetime import datetime
-import csv
 import pandas as pd
 
 #class Flight:

@@ -100,9 +100,33 @@ Sind diese Felder leer, werden sie heraussortiert.</br>
 Welche Merkmale, Variablen, Attribute wurden erfasst? </br>
  Siehe [Data Description: Preprocessed](#Data-Description:-Preprocessed)</br>
 
-### Qualitative Beschreibung der Variablen¶
+###  Qualitative Beschreibung der Variablen¶
+#### Kategorische Variablen
+##### FLights
+Callsign, Origin & Destination sind nominale Variablen. Callsign besitzt selbst keine Ordnung und dient als Identifikationsnummer. <br>
+
+Origin & Destination sind nominale Strings und lassen sich kategorisieren. Der sogenannte ICAO (International Civil Aviation Organization)  Nummer kann in zwei Substrings aufgeteilt werden. Erster Teil identifiziert Region/Kontinent und der zweite Buchstabe kennzeichnet das Land. <br>
+IATA: ZRH; ICAO LSZH:
+- L -> Südeuropa
+- LS -> Schweiz
+- ZH -> Zurich Airport
+
+##### Airports
+Der Ident bildet der ICAO String eines Flughafens und ist eindeutig. Er lässt sich wie vorhin beschrieben in Geographische Orte einordnen.<br>
+
+Der Type beschreibt die Art des Flughafens welches erlaubt, unterschiedliche Flughafen bei Analysen zu Kennzeichnen. 
+
+#### Quantitative Variablen
+##### FLights
+Die Spalte "day" ist als Variable auf der Intervallskala zu betrachten. Wir können Gleichheiten von Differenzen untersuchen, besitzen aber keinen natürlichen Nullpunkt. 
+
+##### Airports
+Latitude und Longitude bilden die Koordinaten des Flughafens. Diese sind in dezimaler Form und erlaubt uns sämltiche Kartenvisualisierungen mit Distanzen zu visualisieren. 
+
 Angaben zu den Variablen, Merkmalen und Typen befinden sich unter [Data Description: Preprocessed](#Data-Description:-Preprocessed)
 
+#### Zusammenhang verschiedener Variablen
+Mittels zweier Dataframes "flights" & "airports" können wir die Anzahl FLüge pro Flughafen untersuchen. Dabei Untersuchen wir die Vorkomnisse in der Zeit sowie in geographische Abhängigkeiten.
 
 ## Milestones
 - 10.10.21 - Thema und Datensatz ist festgelegt
