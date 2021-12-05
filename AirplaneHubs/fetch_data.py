@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 
-from datetime import datetime
 import pandas as pd
+from datetime import datetime
+from geopy.geocoders import Nominatim
+geolocator = Nominatim(user_agent="dsp_datastories")
 
 #class Flight:
 #    def __init__(self, callsign, origin, destination, day):
@@ -111,9 +113,10 @@ def load_airports():
     df['longitude'] = df['coordinates'].str.split(',').str[1]
     df['latitude'] = df['latitude'].astype(float)
     df['longitude'] = df['longitude'].astype(float)
+    #df = df.apply(city_state_country, axis=1)
     
     df['ident'] = df['ident'].astype(str)
-    df['type'] = df['type'].astype(str)
+    df['type'] = df['type'].astype('category')
     df['name'] = df['name'].astype(str)
     
     df = df.drop(['elevation_ft', 'continent', 'iso_country', 'iso_region', 'municipality', 'gps_code', 'iata_code', 'local_code', 'coordinates'], axis=1)
@@ -125,3 +128,19 @@ def str_to_datetime(date):
     y, m, d = (int(x) for x in date.split("-"))
     date = datetime(y, m, d)
     return date
+
+def city_state_country(row):
+    coord = f"{row['latitude']}, {row['longitude']}"
+    
+    try:
+        location = geolocator.reverse(coord)
+        address = location['address']
+        city = address.get('city', '')
+        state = address.get('state', '')
+        country = address.get('country', '')
+        row['city'] = city
+        row['state'] = state
+        row['country'] = country
+    except:
+        pass
+    return row
