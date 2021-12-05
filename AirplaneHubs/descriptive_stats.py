@@ -55,3 +55,17 @@ def show_flights(df):
     _ = ax.legend()
     
     return fig
+
+def show_cum_flights(df):
+    
+    cnt = df.groupby('day').size().rename('Count')
+    hist = np.histogram(cnt)
+    pv = np.cumsum(cnt)
+
+    fig, ax = plt.subplots(figsize=(13,8))
+    _ = ax.step(cnt.keys(), pv, where='pre', drawstyle='steps', label='Kumulative Verteilung')
+    _ = ax.set_title("Verteilung Flugbewegungen")
+    _ = ax.legend()
+    
+    return fig
+
