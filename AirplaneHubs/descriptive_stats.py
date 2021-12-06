@@ -5,10 +5,19 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
-def bar_category(df, col, title, label):
-    ax = df[col].value_counts().plot(kind='bar')
-    _ = ax.set_title(title)
-    _ = ax.set_ylabel(label)
+def bar_category(df):
+    df = df[(df['region'] != 'unkown') & (df['continent'].notnull())]
+    ax = df['type'].value_counts().plot(kind='bar')
+    _ = ax.set_title('Bar-Chart Airport Typen')
+    _ = ax.set_ylabel('Anzahl Flughafen')
+    return ax
+
+def bar_region(df):
+    df = df[(df['region'] != 'unkown') & (df['continent'].notnull())]
+    
+    ax = df['region'].value_counts().plot(kind='bar')
+    _ = ax.set_title("Flughäfen pro Land")
+    _ = ax.set_ylabel("Anzahl Flughäfen")
     return ax
 
 def airport_infos(df):
@@ -16,7 +25,9 @@ def airport_infos(df):
     text += "Flughäfen für Flugzeuge:"+str(len(df[df['type'] == 'small_airport'])+len(df[df['type'] == 'medium_airport'])+len(df[df['type'] == 'large_airport']))+"\n\n"
     
     text += "Anzahl grosser Flughäfen: "+str(len(df[df['type'] == 'large_airport'])) + "\n"
-    text += "Anzahl kleiner & mittlerer Flughäfen: "+str(len(df[df['type'] == 'small_airport'])+len(df[df['type'] == 'medium_airport']))
+    text += "Anzahl kleiner & mittlerer Flughäfen: "+str(len(df[df['type'] == 'small_airport'])+len(df[df['type'] == 'medium_airport']))+ "\n"
+    text += "Anzahl Flughäfen ohne Region/Continent" + str(len(df[(df['region'] != 'unkown') | (df['continent'].notnull())]))
+    
     return text
     
 def flight_infos(df):    
@@ -69,3 +80,25 @@ def show_cum_flights(df):
     
     return fig
 
+def load_airports():
+    df = pd.read_csv("data/preprocessed/airports.csv")
+    
+    df['latitude'] = df['latitude'].astype(float)
+    df['longitude'] = df['longitude'].astype(float)
+    df['ident'] = df['ident'].astype(str)
+    df['type'] = df['type'].astype('category')
+    df['name'] = df['name'].astype(str)
+    df['region'] = df['region'].astype('category')
+    
+    return df
+
+def load_flights():
+    df = pd.read_csv("data/preprocessed/flights.csv")
+    
+    df['callsign'] = df['callsign'].astype(str)
+    df['origin'] = df['origin'].astype(str)
+    df['destination'] = df['destination'].astype(str)
+    df['day'] = pd.to_datetime(df['day'])
+    
+    return df
+    

@@ -113,10 +113,6 @@ def load_flights():
     df['day'] = df['day'].str.split(' ').str[0]
     df['day'] = df['day'].apply(str_to_datetime)
     
-    df['callsign'] = df['callsign'].astype(str)
-    df['origin'] = df['origin'].astype(str)
-    df['destination'] = df['destination'].astype(str)
-    
     df = df.drop(['index','number', 'aircraft_uid', 'typecode','firstseen','lastseen','latitude_1','longitude_1','altitude_1','latitude_2','longitude_2','altitude_2'], axis=1)
     
     return df
@@ -128,12 +124,6 @@ def load_airports():
     df = pd.DataFrame(se_a)
     df['latitude'] = df['coordinates'].str.split(',').str[0]
     df['longitude'] = df['coordinates'].str.split(',').str[1]
-    df['latitude'] = df['latitude'].astype(float)
-    df['longitude'] = df['longitude'].astype(float)
-    
-    df['ident'] = df['ident'].astype(str)
-    df['type'] = df['type'].astype('category')
-    df['name'] = df['name'].astype(str)
     df['region'] = df['ident'].apply(extract_region_from_icao)
     
     df = df.drop(['elevation_ft', 'iso_country', 'iso_region', 'gps_code', 'iata_code', 'local_code', 'coordinates'], axis=1)
