@@ -63,9 +63,9 @@ In der folgenden Tabelle beschreiben wir die benötigten Attribute aus den Daten
 
 #### airports.csv
 
-| Ident (String) | Name (String)	        | Latitude (Double)         | Longitude (Double)       |
-| ------------   | -------------            | ----------                | ----------               |
-| CPA343         | Aero- B Ranch Airport	| -101.473911               |  38.704022               |
+| Ident (String) | Name (String)	        | Latitude (Double)         | Longitude (Double)       | Continent (String)      | Region (String)     | Municipality (String)      |
+| ------------   | -------------            | ----------                | ----------               | ----------      | ----------      | ----------      |
+| CPA343         | Aero- B Ranch Airport	| -101.473911               |  38.704022               | EU              | Südeuropa      | Grenchen       |
 
 #### flights.csv
 

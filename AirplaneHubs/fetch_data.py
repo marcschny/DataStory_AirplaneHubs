@@ -2,8 +2,6 @@
 
 import pandas as pd
 from datetime import datetime
-from geopy.geocoders import Nominatim
-geolocator = Nominatim(user_agent="dsp_datastories")
 
 #class Flight:
 #    def __init__(self, callsign, origin, destination, day):
@@ -82,6 +80,25 @@ geolocator = Nominatim(user_agent="dsp_datastories")
 flights_path_mai = "data/raw/flightlist_05_2021_raw.csv"
 flights_path_sep = "data/raw/flightlist_09_2021_raw.csv"
 airports = "data/raw/airport-codes_csv_raw.csv"
+regions = pd.DataFrame([['S', 'Südamerika'],
+                        ['T', 'Zentralatlantik'],
+                        ['L', 'Südeuropa'],
+                        ['A', 'Südwest-Pazifik'],
+                        ['B', 'Polarregion / Südeuropa'],
+                        ['D', 'Westafrika'],
+                        ['E', 'Nordeuropa'],
+                        ['F', 'Südliches Afrika'],
+                        ['N', 'Südpazifik'],
+                        ['O', 'Naher Osten'],
+                       ['U', 'Ehemalige Sowjetunion'],
+                       ['G', 'Westafrikanische Küste'],
+                       ['P', 'Nördlicher Pazifik'],
+                       ['H', 'Ostafrika'],
+                       ['V', 'Südasien'],
+                       ['R', 'Ostasien'],
+                       ['W', 'Südostasien'],
+                       ['K', 'USA'],
+                       ['M', 'Zentralamerika']], columns=['kennzeichen', 'region'])
 
 def load_flights():
     '''Loading two flightlists.csv and merge to one structured DataFrame'''
@@ -113,13 +130,13 @@ def load_airports():
     df['longitude'] = df['coordinates'].str.split(',').str[1]
     df['latitude'] = df['latitude'].astype(float)
     df['longitude'] = df['longitude'].astype(float)
-    #df = df.apply(city_state_country, axis=1)
     
     df['ident'] = df['ident'].astype(str)
     df['type'] = df['type'].astype('category')
     df['name'] = df['name'].astype(str)
+    df['region'] = df['ident'].apply(extract_region_from_icao)
     
-    df = df.drop(['elevation_ft', 'continent', 'iso_country', 'iso_region', 'municipality', 'gps_code', 'iata_code', 'local_code', 'coordinates'], axis=1)
+    df = df.drop(['elevation_ft', 'iso_country', 'iso_region', 'gps_code', 'iata_code', 'local_code', 'coordinates'], axis=1)
     
     return df
 
@@ -129,18 +146,22 @@ def str_to_datetime(date):
     date = datetime(y, m, d)
     return date
 
-def city_state_country(row):
-    coord = f"{row['latitude']}, {row['longitude']}"
+
+def extract_region_from_icao(x):
+    re = x[0:1].upper()
+    re = regions[regions['kennzeichen'] == re].values
+    region = "unkown"
     
-    try:
-        location = geolocator.reverse(coord)
-        address = location['address']
-        city = address.get('city', '')
-        state = address.get('state', '')
-        country = address.get('country', '')
-        row['city'] = city
-        row['state'] = state
-        row['country'] = country
-    except:
-        pass
-    return row
+    if(len(re) == 1):
+        region = re[0][1]
+    
+    return region
+
+def save_file(df, file):
+    df.to_csv(file)
+
+df_a = load_airports()
+df_f = load_flights()
+
+save_file(df_a, 'data/preprocessed/airports.csv')
+save_file(df_f, 'data/preprocessed/flights.csv')
