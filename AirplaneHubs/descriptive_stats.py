@@ -3,7 +3,23 @@
 from datetime import datetime
 import pandas as pd
 import numpy as np
+import math
 import matplotlib.pyplot as plt
+
+def get_varianz(df):
+    cnt = df.groupby('day').size().rename('Count')
+    
+    mittel = cnt.mean()
+    varianz = np.sum(((cnt - mittel)**2)) / len(cnt)
+    standard = math.sqrt(varianz)
+    max_f = cnt.max()
+    min_f = cnt.min()
+    
+    text = "\nMittelwert: " + str(mittel) + "\n"
+    text += "Varianz: " + str(varianz) + "\n"
+    text += "Standardabweichung: " + str(standard)+"\n"
+    text += "Max:"+str(max_f)+" Min:"+str(min_f)
+    return text
 
 def unkown_flight_to_airport(df_f, df_a):
     airports = df_a['ident'].values
@@ -84,6 +100,36 @@ def show_flights(df):
     _ = ax.hlines(y=median, xmin=xin, xmax=xax, linewidth=2, color='r', label="Median")
     _ = ax.hlines(y=mittel, xmin=xin, xmax=xax, linewidth=2, color='b', label="Mittelwert")
     _ = ax.legend()
+    
+    return fig
+
+def show_flights_seperate(df_mai, df_sep):
+    cnt_m = df_mai.groupby('day').size().rename('Count')
+    cnt_s = df_sep.groupby('day').size().rename('Count')
+    
+    median_m = cnt_m.median()
+    mittel_m = cnt_m.mean()
+    median_s = cnt_s.median()
+    mittel_s = cnt_s.mean()
+    
+    fig, ax = plt.subplots(ncols=2, figsize=(18,5))
+    _ = ax[0].scatter(cnt_m.keys(), cnt_m, alpha=0.6)
+    _ = ax[0].set_xlabel('Datum')
+    _ = ax[0].set_ylabel('Anzahl Flüge pro Tag')
+    _ = ax[0].set_title('Flugbewegungen Mai')
+    xin, xax = ax[0].get_xlim()
+    _ = ax[0].hlines(y=median_m, xmin=xin, xmax=xax, linewidth=2, color='r', label="Median")
+    _ = ax[0].hlines(y=mittel_m, xmin=xin, xmax=xax, linewidth=2, color='b', label="Mittelwert")
+    _ = ax[0].legend()
+    
+    _ = ax[1].scatter(cnt_s.keys(), cnt_s, alpha=0.6)
+    _ = ax[1].set_xlabel('Datum')
+    _ = ax[1].set_ylabel('Anzahl Flüge pro Tag')
+    _ = ax[1].set_title('Flugbewegungen September')
+    xin, xax = ax[1].get_xlim()
+    _ = ax[1].hlines(y=median_s, xmin=xin, xmax=xax, linewidth=2, color='r', label="Median")
+    _ = ax[1].hlines(y=mittel_s, xmin=xin, xmax=xax, linewidth=2, color='b', label="Mittelwert")
+    _ = ax[1].legend()
     
     return fig
 
