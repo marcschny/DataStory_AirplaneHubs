@@ -5,15 +5,35 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
+def unkown_flight_to_airport(df_f, df_a):
+    airports = df_a['ident'].values
+    flights = df_f[['origin', 'destination']].isin(airports)
+    both = flights.loc[(flights['destination'] == True) & (flights['origin'] == True)]
+    text = "Alle Flugverbindungen:\t"+str(len(flights)) +"\n"
+    text+= "Klare Standorte:\t"+str(len(both))+"\n"
+    text+="Es fehlen uns:\t\t"+str((len(flights)-len(both))) + " Standorte"
+    return text
+
+def get_unkown_flights(df_f, df_a):
+    airports = df_a['ident'].values
+    flights = df_f[['origin', 'destination']].isin(airports)
+    
+    index = flights.index
+    ohne_standort = flights['origin'] == False
+    ohne = index[ohne_standort]
+    ohne_standort = df_f.loc[ohne]
+    ohne_standort = ohne_standort.rename(columns={'Unnamed: 0':'index'})
+    return ohne_standort
+
 def bar_category(df):
-    df = df[(df['region'] != 'unkown') & (df['continent'].notnull())]
+    #df = df[(df['region'] != 'unkown') & (df['continent'].notnull())]
     ax = df['type'].value_counts().plot(kind='bar')
     _ = ax.set_title('Bar-Chart Airport Typen')
     _ = ax.set_ylabel('Anzahl Flughafen')
     return ax
 
 def bar_region(df):
-    df = df[(df['region'] != 'unkown') & (df['continent'].notnull())]
+    #df = df[(df['region'] != 'unkown') & (df['continent'].notnull())]
     
     ax = df['region'].value_counts().plot(kind='bar')
     _ = ax.set_title("Flughäfen pro Land")
