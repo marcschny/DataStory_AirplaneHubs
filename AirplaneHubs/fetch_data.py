@@ -2,6 +2,10 @@
 
 import pandas as pd
 from datetime import datetime
+from geopy.distance import geodesic
+
+pd.options.mode.chained_assignment = None  # default='warn': ignore SettingWithCopyWarning
+
 
 #class Flight:
 #    def __init__(self, callsign, origin, destination, day):
@@ -104,8 +108,8 @@ def load_flights():
     '''Loading two flightlists.csv and merge to one structured DataFrame'''
     
     #Loading Flights
-    data_mai = pd.read_csv(flights_path_mai,   delimiter=',')
-    data_sep = pd.read_csv(flights_path_sep,   delimiter=',')
+    data_mai = pd.read_csv(flights_path_mai, delimiter=',')
+    data_sep = pd.read_csv(flights_path_sep, delimiter=',')
     
     df = pd.concat([data_mai, data_sep], ignore_index=True)
     df = df[(df['origin'].notnull()) & (df['destination'].notnull())].reset_index()
@@ -113,9 +117,49 @@ def load_flights():
     df['day'] = df['day'].str.split(' ').str[0]
     df['day'] = df['day'].apply(str_to_datetime)
     
-    df = df.drop(['index','number', 'aircraft_uid', 'typecode','firstseen','lastseen','latitude_1','longitude_1','altitude_1','latitude_2','longitude_2','altitude_2'], axis=1)
+    
+    df = df.drop(['index','number', 'aircraft_uid', 'typecode','firstseen','lastseen','latitude_1','longitude_1','altitude_1','latitude_2','longitude_2','altitude_2', 'registration'], axis=1)
     
     return df
+
+def add_distance(df_f, airports):
+    '''Adds distances to flights dataframe'''
+    
+    #create dictionary of airports
+    airportsDict = airports.set_index("ident").to_dict("index")
+    
+    #only add flight where it's origin and destination are in airports
+    airport_idents = airports['ident'].values
+    flights = df_f[(df_f.origin.isin(airport_idents)) & (df_f.destination.isin(airport_idents))]
+    
+    #origin coordinates as tuple
+    flights["origin_latitudes"] = flights["origin"].apply(lambda x: airportsDict[x]["latitude"]).astype(float)
+    flights["origin_longitudes"] = flights["origin"].apply(lambda x: airportsDict[x]["longitude"]).astype(float)
+    flights["origin_coordinates"] = flights[["origin_longitudes","origin_latitudes"]].apply(tuple, axis=1)
+    
+    #destination coordinates as tuple
+    flights["destination_latitudes"] = flights["destination"].apply(lambda x: airportsDict[x]["latitude"]).astype(float)
+    flights["destination_longitudes"] = flights["destination"].apply(lambda x: airportsDict[x]["longitude"]).astype(float)
+    flights["destination_coordinates"] = flights[["destination_longitudes","destination_latitudes"]].apply(tuple, axis=1)
+    
+    #coordinates tuple
+    flights["coordinates"] = flights[["origin_coordinates", "destination_coordinates"]].apply(tuple, axis=1)
+    
+    #add distances using get_distance method
+    flights["distance"] = flights["coordinates"].apply(get_distance)
+    
+    #drop columns
+    flights = flights.drop(["origin_latitudes", "origin_longitudes", "origin_coordinates", "destination_latitudes", "destination_longitudes", "destination_coordinates", "coordinates"], axis=1)
+    
+    
+    return flights
+
+
+
+def get_distance(coordinates):
+    '''Returns distance between two coordinates'''
+    return geodesic(coordinates[0], coordinates[1]).km
+
 
 def load_airports():
     '''Loading Airports.csv and structure DataFrame'''
@@ -150,8 +194,14 @@ def extract_region_from_icao(x):
 def save_file(df, file):
     df.to_csv(file)
 
-df_a = load_airports()
+
+#load flights and airports dataframes    
+df_airports = load_airports()
 df_f = load_flights()
 
-save_file(df_a, 'data/preprocessed/airports.csv')
-save_file(df_f, 'data/preprocessed/flights.csv')
+#add distances to flights 
+df_flights = add_distance(df_f, df_airports)
+
+#save dataframes as csv-file
+save_file(df_airports, 'data/preprocessed/airports.csv')
+save_file(df_flights, 'data/preprocessed/flights.csv')
