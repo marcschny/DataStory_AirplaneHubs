@@ -135,12 +135,12 @@ def add_distance(df_f, airports):
     #origin coordinates as tuple
     flights["origin_latitudes"] = flights["origin"].apply(lambda x: airportsDict[x]["latitude"]).astype(float)
     flights["origin_longitudes"] = flights["origin"].apply(lambda x: airportsDict[x]["longitude"]).astype(float)
-    flights["origin_coordinates"] = flights[["origin_longitudes","origin_latitudes"]].apply(tuple, axis=1)
+    flights["origin_coordinates"] = flights[["origin_latitudes","origin_longitudes"]].apply(tuple, axis=1)
     
     #destination coordinates as tuple
     flights["destination_latitudes"] = flights["destination"].apply(lambda x: airportsDict[x]["latitude"]).astype(float)
     flights["destination_longitudes"] = flights["destination"].apply(lambda x: airportsDict[x]["longitude"]).astype(float)
-    flights["destination_coordinates"] = flights[["destination_longitudes","destination_latitudes"]].apply(tuple, axis=1)
+    flights["destination_coordinates"] = flights[["destination_latitudes","destination_longitudes"]].apply(tuple, axis=1)
     
     #coordinates tuple
     flights["coordinates"] = flights[["origin_coordinates", "destination_coordinates"]].apply(tuple, axis=1)
@@ -166,8 +166,8 @@ def load_airports():
     se_a = pd.read_csv(airports,   delimiter=',')
     
     df = pd.DataFrame(se_a)
-    df['latitude'] = df['coordinates'].str.split(',').str[0]
-    df['longitude'] = df['coordinates'].str.split(',').str[1]
+    df['latitude'] = df['coordinates'].str.split(',').str[1]
+    df['longitude'] = df['coordinates'].str.split(',').str[0]
     df['region'] = df['ident'].apply(extract_region_from_icao)
     
     df = df.drop(['elevation_ft', 'iso_country', 'iso_region', 'gps_code', 'iata_code', 'local_code', 'coordinates'], axis=1)
