@@ -147,6 +147,7 @@ def add_distance(df_f, airports):
     
     #add distances using get_distance method
     flights["distance"] = flights["coordinates"].apply(get_distance)
+    flights["distance"].astype(float)
     
     #drop columns
     flights = flights.drop(["origin_latitudes", "origin_longitudes", "origin_coordinates", "destination_latitudes", "destination_longitudes", "destination_coordinates", "coordinates"], axis=1)
