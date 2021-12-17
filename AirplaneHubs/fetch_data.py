@@ -118,7 +118,7 @@ def load_flights():
     df['day'] = df['day'].apply(str_to_datetime)
     
     
-    df = df.drop(['index','number', 'aircraft_uid', 'typecode','firstseen','lastseen','latitude_1','longitude_1','altitude_1','latitude_2','longitude_2','altitude_2', 'registration'], axis=1)
+    df = df.drop(['index','number','aircraft_uid', 'typecode','firstseen','lastseen','latitude_1','longitude_1','altitude_1','latitude_2','longitude_2','altitude_2'], axis=1)
     
     return df
 
@@ -175,6 +175,34 @@ def load_airports():
     
     return df
 
+def assignCountToFrame(x,d):
+    counts = 0
+    try:
+        counts = d[x]["counts"]
+    except:
+        pass
+    return counts
+
+def countTakeoffsAndLandings(df_airports, df_flights):
+    '''Return new df with all airports and their value_counts'''
+    
+    takeoff = pd.DataFrame(columns=["airport", "counts"])
+    takeoff['airport'] = df_flights['origin']
+    takeoff["counts"] = takeoff.groupby("airport")["airport"].transform("count")
+    
+    landing = pd.DataFrame(columns=["airport", "counts"])
+    landing['airport'] = df_flights['destination']
+    landing["counts"] = landing.groupby("airport")["airport"].transform("count")
+    
+    takeoff.drop_duplicates(inplace=True)
+    landing.drop_duplicates(inplace=True)
+    takeoffs = takeoff.set_index("airport").to_dict("index")
+    landings  = landing.set_index("airport").to_dict("index")
+    df_airports["takeoffs"] = df_airports['ident'].apply(lambda a: assignCountToFrame(a, takeoffs))
+    df_airports["landings"] = df_airports['ident'].apply(lambda a: assignCountToFrame(a, landings))
+    
+    return df_airports
+
 def str_to_datetime(date):
     '''Convert a str of "YYYY-MM-DD" strings to datetime objects.'''
     y, m, d = (int(x) for x in date.split("-"))
@@ -197,11 +225,14 @@ def save_file(df, file):
 
 
 #load flights and airports dataframes    
-df_airports = load_airports()
+df_a = load_airports()
 df_f = load_flights()
 
 #add distances to flights 
-df_flights = add_distance(df_f, df_airports)
+df_flights  = add_distance(df_f, df_a)
+
+#calculate takeoffs and landings
+df_airports = countTakeoffsAndLandings(df_a, df_f)
 
 #save dataframes as csv-file
 save_file(df_airports, 'data/preprocessed/airports.csv')
