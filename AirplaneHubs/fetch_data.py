@@ -130,7 +130,7 @@ def add_distance(df_f, airports):
     
     #only add flight where it's origin and destination are in airports
     airport_idents = airports['ident'].values
-    flights = df_f[(df_f.origin.isin(airport_idents)) & (df_f.destination.isin(airport_idents))]
+    flights = df_f.loc[(df_f.origin.isin(airport_idents)) & (df_f.destination.isin(airport_idents))]
     
     #origin coordinates as tuple
     flights["origin_latitudes"] = flights["origin"].apply(lambda x: airportsDict[x]["latitude"]).astype(float)
@@ -200,6 +200,7 @@ def countTakeoffsAndLandings(df_airports, df_flights):
     landings  = landing.set_index("airport").to_dict("index")
     df_airports["takeoffs"] = df_airports['ident'].apply(lambda a: assignCountToFrame(a, takeoffs))
     df_airports["landings"] = df_airports['ident'].apply(lambda a: assignCountToFrame(a, landings))
+    df_airports['total'] = df_airports['takeoffs'] + df_airports['landings']
     
     return df_airports
 
