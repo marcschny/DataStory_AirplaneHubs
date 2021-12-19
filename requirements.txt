@@ -1,0 +1,14 @@
+https://plotly.com/python/getting-started/#installation
+
+Installieren mit "PIP" oder "CONDA"
+
+## 1. Schritt
+install plotly==5.4.0
+
+## 2. Schritt
+install "jupyterlab>=3" "ipywidgets>=7.6" 
+
+## 3. Schritt
+install jupyter-dash 
+
+## 4. Restart Docker
