@@ -171,7 +171,7 @@ def load_airports():
     df['longitude'] = df['coordinates'].str.split(',').str[0]
     df['region'] = df['ident'].apply(extract_region_from_icao)
     
-    df = df.drop(['elevation_ft', 'iso_country', 'iso_region', 'gps_code', 'iata_code', 'local_code', 'coordinates'], axis=1)
+    df = df.drop(['elevation_ft', 'iso_country', 'iso_region', 'gps_code', 'iata_code', 'local_code', 'coordinates', 'continent'], axis=1)
     
     return df
 
@@ -201,6 +201,9 @@ def countTakeoffsAndLandings(df_airports, df_flights):
     df_airports["takeoffs"] = df_airports['ident'].apply(lambda a: assignCountToFrame(a, takeoffs))
     df_airports["landings"] = df_airports['ident'].apply(lambda a: assignCountToFrame(a, landings))
     df_airports['total'] = df_airports['takeoffs'] + df_airports['landings']
+    
+    num_dest = df_flights.groupby(['origin', 'destination']).size().reset_index().groupby('origin').size().reset_index().rename(columns={'origin':'airport', 0:'counts'}).set_index('airport').to_dict("index")
+    df_airports['count_destinations'] = df_airports['ident'].apply(lambda a: assignCountToFrame(a, num_dest))
     
     return df_airports
 

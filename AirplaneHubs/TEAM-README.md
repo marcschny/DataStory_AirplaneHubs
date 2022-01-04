@@ -29,16 +29,11 @@ Wir verwenden folgende Datenquellen für die Data-Story - Download vom [26.10.20
 
 
 ## Data Collection
-Die Datensammlung kann mittels Script "fetch_data.py" ausgeführt werden. 
+Die Datensammlung kann mittels Script "fetch_data.py" ausgeführt und präprozessiert werden. Wie mit Herrn Graber abgesprochen, wird der zusätzliche Schritt "preprocessing" direkt mit diesen Script ausgeführt.
 Um diese zu starten sind zwingend die Rohdaten wie folgt abzulegen: 
 - data/raw/fluege_09_2021_raw.csv
 - data/raw/fluege_05_2021_raw.csv
 - data/raw/airports-codes_csv_raw.csv
-
-ACHTUNG: Da wir alle Flüge auf doppeltes vorkommen prüfen, geht der Vorgang sehr lange. 
-Wir suchen aktuell noch eine Methode wie wir dies beschleunigen/verbessern.
-Infolgedessen sind Zeile 83 & 84 auskommentiert.
-Nach Ausführung der Datensammlung befindet sich jeweils ein Flug-File sowie Airport-File unter "data". 
 
 
 ## Data Description: Raw
@@ -63,17 +58,17 @@ In der folgenden Tabelle beschreiben wir die benötigten Attribute aus den Daten
 
 #### airports.csv
 
-| Ident (String) | Name (String)	        | Latitude (Double)         | Longitude (Double)       | Continent (String)      | Region (String)     | Municipality (String)      |
-| ------------   | -------------            | ----------                | ----------               | ----------      | ----------      | ----------      |
-| CPA343         | Aero- B Ranch Airport	| -101.473911               |  38.704022               | EU              | Südeuropa      | Grenchen       |
+| Ident (String) | Name (String)	        | Type (String) | Latitude (Double)         | Longitude (Double)       | Region (String)     | Municipality (String)      |  Takeoffs (Integer)      | Landings (Integer)      | Total (Integer)      | Number of Destinations (Integer)      |
+| ------------   | -------------            | ----------                | ----------               | ----------      | ----------      | ----------      | ----------      | ----------      || ----------      | ----------      |
+| CPA343         | Aero- B Ranch Airport	| -101.473911               |  38.704022               | EU              | Südeuropa      | Grenchen       | 10 | 9 |19 | 5|
 
 #### flights.csv
 
-| Callsign (String)   | Origin (String)   | Destination (Sting)   | Day (String)               |
-| ----------------    | ------------      | -------------         | ---------                  |
-| 00AA  			  | YMML              | EGKK                  | 2019-01-01 00:00:00+00:00  | 
+| Callsign (String)   | Origin (String)   | Destination (Sting)   | Day (String)               | Distance (Double) |
+| ----------------    | ------------      | -------------         | ---------                  |----------         |
+| 00AA  			  | YMML              | EGKK                  | 2019-01-01 00:00:00+00:00  | 19344             | 
 
-Da nicht immer alle Daten vorhanden sind, müssen Datensätze bei welcher "Origin" und "Destination" fehlen, aussortiert werden da diese essenziell zur Durchführung der Analysen sind.
+Da nicht immer alle Daten vorhanden sind, müssen Datensätze bei welcher "Origin" und "Destination" fehlen, aussortiert werden da diese essenziell zur Durchführung der Analysen sind. Desweiteren wird das zusätzliche Dataframe "flights" beibehalten um Rückschlüsse zum Datum zu erhalten. 
 
 
 ## Descriptive Stats
@@ -90,19 +85,22 @@ Wie viele Datenpunkte (n) wurden erfasst? </br>
 1'048'576 Flüge und 57'422 Flughäfen </br>
 
 Wurden Attribute präprozessiert? Falls ja, wie? </br>
- Das Attribute "Coordinates" aus den Flughafen-Rohdaten wurde präprozessiert. Dabei wird der Tupel "Coordinates" 
-bei jedem Flughafen gesplittet, und auf zwei neue Attribute "Latitude" und "Longtitude" aufgeteilt. </br>
+"Coordinates": Das Tupel "Coordinates" wurde bei jedem Flughafen gesplittet, und auf zwei neue Attribute "Latitude" und "Longitude" aufgeteilt. </br>
+"Landings/Takeoffs": Die Attribute wurden aus der Anzahl Flugverbindungen gefiltert und dem Airport jeweils hinzugefügt. </br>
+"Total": Das Attribut Total besteht aus der Spalte Landing und Takeoffs zusammengezählt </br>
+"Number of destinations": Das Attribute wurde wiederum aus den Flugverbindungen gezählt. Es stellt die Anzahl unterschiedlicher angefolgener Flughafen pro Flughafen vor.</br>
+"Region": Das Attribut Region wurde aus dem ICAO-String erstellt. Der erste Buchstabe kennzeichnet dabei die Region - Details siehe [Flights](#Flights) unter "Qualitative Beschreibung der Variablen".
 
 Wurden die Daten gefiltert? Falls ja, wie? </br>
- Beim Einlesen der Flug-Rohdaten wird jeweils überprüft "Origin" und "Destination" des Fluges vorhanden sind.
-Sind diese Felder leer, werden sie heraussortiert.</br>
+Beim Einlesen der Flug-Rohdaten wird jeweils überprüft ob "Origin" und "Destination" des Fluges vorhanden sind. Sind diese Felder leer, werden sie heraussortiert.</br>
+Zusätzlich werden Flughäfen welche in den Flugverbindungen vorkommen, aber nicht im Flughafendatenset nicht berücksichtigt und ignoriert.
 
 Welche Merkmale, Variablen, Attribute wurden erfasst? </br>
  Siehe [Data Description: Preprocessed](#Data-Description:-Preprocessed)</br>
 
 ###  Qualitative Beschreibung der Variablen¶
 #### Kategorische Variablen
-##### FLights
+##### Flights
 Callsign, Origin & Destination sind nominale Variablen. Callsign besitzt selbst keine Ordnung und dient als Identifikationsnummer. <br>
 
 Origin & Destination sind nominale Strings und lassen sich kategorisieren. Der sogenannte ICAO (International Civil Aviation Organization)  Nummer kann in zwei Substrings aufgeteilt werden. Erster Teil identifiziert Region/Kontinent und der zweite Buchstabe kennzeichnet das Land. <br>
