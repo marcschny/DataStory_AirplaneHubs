@@ -10,16 +10,16 @@ import matplotlib.pyplot as plt
 def get_varianz(df):
     cnt = df.groupby('day').size().rename('Count')
     
-    mittel = cnt.mean()
-    varianz = np.sum(((cnt - mittel)**2)) / len(cnt)
-    standard = math.sqrt(varianz)
-    max_f = cnt.max()
-    min_f = cnt.min()
+    mittel  = round(cnt.mean(),2)
+    varianz = round(cnt.var(),2)
+    std     = round(cnt.std(),2)
+    max_f   = round(cnt.max(),2)
+    min_f   = round(cnt.min(),2)
     
     text = "\nMittelwert: " + str(mittel) + "\n"
-    text += "Varianz: " + str(varianz) + "\n"
-    text += "Standardabweichung: " + str(standard)+"\n"
-    text += "Max:"+str(max_f)+" Min:"+str(min_f)
+    text += "Varianz:\t" + str(varianz) + "\n"
+    text += "Standardabweichung: " + str(std)+"\n"
+    text += "Max:"+str(max_f)+"\nMin:"+str(min_f)
     return text
 
 def bar_category_region(df):
@@ -48,64 +48,64 @@ def airport_infos(df):
     return text
     
 def flight_infos(df):    
-    cnt = df.groupby('day').size().rename('Count')
-    median = cnt.median()
-    mittel = cnt.mean()
+    df_mai = df.loc[df['day'] < '2021-06-01']
+    df_sep = df.loc[df['day'] > '2021-06-01']
+    
+    cnt     = df.groupby('day').size().rename('Count')
+    cnt_mai = df_mai.groupby('day').size().rename('Count')
+    cnt_sep = df_sep.groupby('day').size().rename('Count')
+    
+    std = round(cnt.std(),2)
+    std_mai = round(cnt_mai.std(),2)
+    std_sep = round(cnt_sep.std(),2)
+    median = round(cnt.median(),2)
+    mittel = round(cnt.mean(),2)
+    
+    median_mai = cnt_mai.median()
+    mittel_mai = round(cnt_mai.mean(),2)
+    
+    median_sep = cnt_sep.median()
+    mittel_sep = round(cnt_sep.mean(),2)
     
     length_mai = len(df.loc[df['day'] < '2021-06-01'])
     length_sep = len(df.loc[df['day'] > '2021-06-01'])
     
-    text = "Total FLugverbindungen: "+str(length_mai+length_sep)+"\n"
-    text += "Anzahl FLugverbindungen im Mai: "
+    text = "Total FLugverbindungen: "+str(len(df))+"\n"
+    text += "Median:\t\t\t" + str(median)+"\n"
+    text += "Mittelwert:\t\t" + str(mittel)+"\n"
+    text += "Standardabweichung:\t" + str(std)+"\n\n"
+    
+    text += "FLugverbindungen im Mai: "
     text += str(length_mai) + "\n"
-    text += "Anzahl FLugverbindungen im Sep: "
-    text += str(length_sep) + "\n\n"
-    text += "Durchschnitt der Flugbewegungen\n"
-    text += "Median:\t  " + str(median)+"\n"
-    text += "Mittelwert:" + str(mittel)+"\n"
+    text += "Mittelwert:\t\t" +str(mittel_mai) + "\n"
+    text += "Median:\t\t\t"+str(median_mai) + "\n"
+    text += "Standardabweichung:\t" + str(std_mai)+"\n\n"
+                                          
+    text += "FLugverbindungen im Sep: "
+    text += str(length_sep) + "\n"
+    text += "Mittelwert:\t\t" +str(mittel_sep) + "\n"
+    text += "Median:\t\t\t"+str(median_sep) + "\n"
+    text += "Standardabweichung:\t" + str(std_sep)
     
     return text
 
-def show_flights_seperate(df_mai, df_sep):
-    cnt_m = df_mai.groupby('day').size().rename('Count')
-    cnt_s = df_sep.groupby('day').size().rename('Count')
-    
-    median_m = cnt_m.median()
-    mittel_m = cnt_m.mean()
-    median_s = cnt_s.median()
-    mittel_s = cnt_s.mean()
-    
-    fig, ax = plt.subplots(ncols=2, figsize=(18,5))
-    _ = ax[0].plot(cnt_m.keys(), cnt_m)
-    _ = ax[0].set_xlabel('Datum')
-    _ = ax[0].set_ylabel('Anzahl Flüge pro Tag')
-    _ = ax[0].set_title('Flugbewegungen Mai')
-    xin, xax = ax[0].get_xlim()
-    _ = ax[0].hlines(y=median_m, xmin=xin, xmax=xax, linewidth=2, color='g', label="Median")
-    _ = ax[0].hlines(y=mittel_m, xmin=xin, xmax=xax, linewidth=2, color='b', label="Mittelwert")
-    _ = ax[0].legend()
-    
-    _ = ax[1].plot(cnt_s.keys(), cnt_s)
-    _ = ax[1].set_xlabel('Datum')
-    _ = ax[1].set_ylabel('Anzahl Flüge pro Tag')
-    _ = ax[1].set_title('Flugbewegungen September')
-    xin, xax = ax[1].get_xlim()
-    _ = ax[1].hlines(y=median_s, xmin=xin, xmax=xax, linewidth=2, color='g', label="Median")
-    _ = ax[1].hlines(y=mittel_s, xmin=xin, xmax=xax, linewidth=2, color='b', label="Mittelwert")
-    _ = ax[1].legend()
-    
+def show_distribution(df_airports):   
+    df_takeoffs = df_airports.sort_values(['takeoffs'], ascending=False).head(60)
+    fig, ax = plt.subplots(figsize=(15,5))
+    _ = ax.bar(df_takeoffs['ident'], df_takeoffs['takeoffs'], width=0.6, label="Takeoff's")
+    _ = ax.bar(df_takeoffs['ident'], df_takeoffs['landings'], width=0.6, bottom=df_takeoffs['takeoffs'], label="Landings")
+    _ = ax.set_title("Anzahl Flugverkehr")
+    _ = ax.set_xlabel("Flughäfen")
+    _ = ax.set_ylabel("Anzahl Flüge (ein- und ausgehend)")
+    _ = ax.set_xticks(df_takeoffs['ident'])
+    _ = ax.set_xticklabels(df_takeoffs['ident'],rotation=70)
+    _ = ax.legend()
     return fig
 
-def show_distribution(df_a):   
-    df = df_a.loc[df_a['total'] != 0].sort_values('total', ascending=False)
-    df = df.head(50)
-    g = sns.catplot(data=df, x='ident', y='total', kind='bar', height=5, aspect=3)    
-    g.set_xticklabels(rotation=60) 
-    return g
-
-def show_distribution_region(df_a):   
-    g = sns.catplot(data=df_a, x='region', y='total', kind='bar', height=5, aspect=2)    
-    g.set_xticklabels(rotation=90) 
+def show_distribution_region(df_airports):   
+    o = df_airports.groupby(['region'], as_index=False)[['takeoffs', 'landings', 'total']].sum()
+    g = o.plot(x='region', y=['takeoffs','landings'], kind='barh', width=.95, figsize=(10,8),fontsize=13).set(
+    title='Flugverkehr nach Region', xlabel="Anzahl Flugverbindungen", ylabel="Regionen")
     return g
 
 def show_cum_flights(df, title):
@@ -120,6 +120,36 @@ def show_cum_flights(df, title):
     _ = ax.set_xlabel("Datum")
     
     return ax
+
+def show_stats(df_flights):
+    df_flights["day"] = df_flights["day"].astype("datetime64")
+
+    df_mai = df_flights.loc[df_flights['day'] < '2021-06-01']
+    flights_m = df_mai.groupby([df_mai["day"]]).size()
+    df_sep = df_flights.loc[df_flights['day'] > '2021-06-01']
+    flights_s = df_sep.groupby([df_sep["day"]]).size()
+
+    mittel_m = flights_m.mean()
+    std_m    = flights_m.std()
+    mittel_s = flights_s.mean()
+    std_s    = flights_s.std()
+
+    fig, ax = plt.subplots(ncols=2, figsize=(18,5))
+    flights_m.plot(kind="bar", width=.8, rot=85, title="Flugverbindungen Monat Mai", xlabel="Tag", ylabel="Anzahl Verbindungen", ax=ax[0])
+    xmin, xmax = ax[0].get_xlim()
+    _ = ax[0].hlines(mittel_m, xmin, xmax, 'red', linestyle='-', label='Mittelwert')
+    _ = ax[0].hlines(mittel_m-std_m, xmin, xmax, 'lightgreen', linestyle='--', label='Standardabweichung')
+    _ = ax[0].hlines(mittel_m+std_m, xmin, xmax, 'lightgreen', linestyle='--')
+    _ = ax[0].legend()
+
+    flights_s.plot(kind="bar", width=.8, rot=85, title="Flugverbindungen Monat Sep.", xlabel="Tag", ylabel="Anzahl Verbindungen", ax=ax[1])
+    xmin, xmax = ax[0].get_xlim()
+    _ = ax[1].hlines(mittel_s, xmin, xmax, 'red', linestyle='-', label='Mittelwert')
+    _ = ax[1].hlines(mittel_s-std_s, xmin, xmax, 'lightgreen', linestyle='--', label='Standardabweichung')
+    _ = ax[1].hlines(mittel_s+std_s, xmin, xmax, 'lightgreen', linestyle='--')
+    _ = ax[1].legend()
+    
+    return fig, mittel_m, mittel_s, std_m, std_s
 
 def load_airports():
     df = pd.read_csv("data/preprocessed/airports.csv")
