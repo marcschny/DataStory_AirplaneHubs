@@ -11,17 +11,29 @@ import seaborn as sns
 import matplotlib.ticker as ticker
 
 def load_data():
+    ''' 
+    returns pre-processed data files for airports and flights 
+    '''
     df_airports = pd.read_csv("data/preprocessed/airports.csv")
     df_flights = pd.read_csv("data/preprocessed/flights.csv")
     return df_airports, df_flights
 
+
 def flight_connections(df):
+    ''' 
+    groups takeoffs, landings and total per region
+    and returns grouped bar plot for flight traffic per region
+    '''
     o = df.groupby(['region'], as_index=False)[['takeoffs', 'landings', 'total']].sum()
     g = o.plot(x='region', y=['takeoffs','landings'], kind='barh', width=.8, figsize=(12,7)).set(title='Flugverkehr nach Region', xlabel="Anzahl Flugverbindungen", ylabel="Regionen")
     
     return g
 
 def traffic_map_total_destinations(df, quantile):
+    ''' 
+    groups dataframe by regions and 
+    returns scatter_mapbox of airports with most traffic
+    '''
     regions = df[df['total'] != 0].groupby(['region', 'ident'])[['total','takeoffs','landings','count_destinations']].sum().reset_index()
     q = regions.groupby('region')[['total','count_destinations','takeoffs','landings']].quantile(quantile)
     labels = {'total':'qt', 'count_destinations':'qc', 'takeoffs':'qd', 'landings':'ql'}
@@ -42,6 +54,10 @@ def traffic_map_total_destinations(df, quantile):
     return fig
 
 def show_stats(df_flights):
+    ''' 
+    computes statistics (mean, abbreviation, ...) for both months (may and september)
+    and returns these statistics together with a bar plot
+    '''
     df_flights["day"] = df_flights["day"].astype("datetime64")
 
     df_mai = df_flights.loc[df_flights['day'] < '2021-06-01']
@@ -77,32 +93,36 @@ def show_stats(df_flights):
 
 
 def map_longest_flight_distances(df_airports, df_flights):
+    ''' 
+    processes new dataframe to compute the longest flight distances
+    and returns the top 50 longest flights as a ScatterGeo figure
+    '''
     
-    #create dictionary of airports
+    # create dictionary of airports
     airportsDict = df_airports.set_index("ident").to_dict("index")
 
-    #only flights with distances > 1.0
+    # only flights with distances > 1.0
     flightDistances = df_flights[df_flights.distance > 1.0]
-    #sort flights by distance descending
+    # sort flights by distance descending
     flightDistances = flightDistances.sort_values(by=["distance"], ascending=False)
-    #assign airports group-count to flightDistances.counts
+    # assign airports group-count to flightDistances.counts
     flightDistances["counts"] = flightDistances.groupby("distance")["distance"].transform("count")
-    #drop duplicates from flightDistances
+    # drop duplicates from flightDistances
     flightDistances.drop_duplicates(subset=["distance"], inplace=True)
 
-    #add columns o_lat, o_long, d_lat, d_long
+    # add columns o_lat, o_long, d_lat, d_long
     flightDistances["o_lat"] = flightDistances.origin.apply(lambda a: airportsDict[a]["latitude"])
     flightDistances["o_long"] = flightDistances.origin.apply(lambda a: airportsDict[a]["longitude"])
     flightDistances["d_lat"] = flightDistances.destination.apply(lambda a: airportsDict[a]["latitude"])
     flightDistances["d_long"] = flightDistances.destination.apply(lambda a: airportsDict[a]["longitude"])
 
-    #first 500 flight distances
-    topFlightDistances = flightDistances.reset_index().head(100)
+    # first 50 flight distances
+    topFlightDistances = flightDistances.reset_index().head(50)
 
-    #create figure
+    # create figure
     fig = go.Figure()
 
-    #add flight traces to map
+    # add flight traces to map
     flight_paths = []
     for index, row in topFlightDistances.iterrows():
         fig.add_trace(
@@ -111,7 +131,7 @@ def map_longest_flight_distances(df_airports, df_flights):
                 lon = [row["o_long"], row["d_long"]],
                 lat = [row["o_lat"], row["d_lat"]],
                 mode = "lines+markers",
-                line = dict(width = 0.8+(row["counts"]*0.01), color = "#5b2c6f"),
+                line = dict(width = 0.7+(row["counts"]*0.02), color = "#5b2c6f"),
                 opacity = 0.75,
                 name = "",
                 marker = {'size': 4},
@@ -122,7 +142,7 @@ def map_longest_flight_distances(df_airports, df_flights):
             )
         )
 
-    #visualization adjustments
+    # visualization adjustments
     fig.update_traces(
         hoverinfo = "text",
     )    
@@ -152,4 +172,3 @@ def map_longest_flight_distances(df_airports, df_flights):
     )
     
     return fig
-
