@@ -7,8 +7,8 @@ import math
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-def get_varianz(df):
-    cnt = df.groupby('day').size().rename('Count')
+def get_stats(df, col):
+    cnt = df.groupby(col).size().rename('Count')
     
     mittel  = round(cnt.mean(),2)
     varianz = round(cnt.var(),2)
@@ -20,6 +20,21 @@ def get_varianz(df):
     text += "Varianz:\t" + str(varianz) + "\n"
     text += "Standardabweichung: " + str(std)+"\n"
     text += "Max:"+str(max_f)+"\nMin:"+str(min_f)
+    return text    
+
+def stats_destinations(df):
+    var    = round(df['count_destinations'].var(),2)
+    std    = round(df['count_destinations'].std(),2)
+    mittel = round(df['count_destinations'].mean(),2)
+    median = round(df['count_destinations'].median(),2)
+    
+    count = len(df);
+    
+    text = "Anzahl Flughafen:"+str(count)+"\n"
+    text += "Mittelwert: "+str(mittel)+"\n"
+    text += "Median:\t"+str(median)+"\n"
+    text += "Varianz:\t"+str(var)+"\n"
+    text += "Standardabweichung: "+str(std)
     return text
 
 def bar_category_region(df):
@@ -150,6 +165,12 @@ def show_stats(df_flights):
     _ = ax[1].legend()
     
     return fig, mittel_m, mittel_s, std_m, std_s
+
+def show_stats_destinations(df_airports):
+    o = df_airports.groupby(['region'], as_index=False)[['count_destinations']].sum()
+    g = o.plot(x='region', y='count_destinations', kind='barh', width=.95, figsize=(10,8),fontsize=13).set(
+    title='Anzahl unterschiedlicher Destinationen nach Region', xlabel="Anzahl Destinationen", ylabel="Regionen")
+    return g
 
 def load_airports():
     df = pd.read_csv("data/preprocessed/airports.csv")
