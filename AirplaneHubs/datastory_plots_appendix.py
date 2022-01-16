@@ -4,11 +4,12 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
-import descriptive_stats as ds
-import datastory_plots as dsp
 import plotly.express as px
 import seaborn as sns
 import plotly.graph_objects as go
+
+import descriptive_stats as ds
+import datastory_plots as dsp
 
 def distribution_takeoff_landings(df_airports):
     df_takeoffs = df_airports.sort_values(['takeoffs'], ascending=False).head(50)
@@ -36,7 +37,7 @@ def traffic_map_typ(df_a, df_f):
     q_f = df_f.quantile(0.993)
     df_flights = df_f[df_f['distance'] > q_f['distance']];
     
-    traffic = df_a_new[df_a_new['ident'].isin(df_flights.destination)]
+    traffic = df_a_new[df_a_new['ident'].isin(df_flights.origin)]
     
     traffic_by_type = traffic[traffic['type'] == 'large_airport']
     
@@ -138,3 +139,80 @@ def difference_between_months(df_flights):
     _ = h.yaxis.set_major_formatter(ticker.FuncFormatter(lambda y, pos: '{:,.2f}'.format(y/1000) + 'K')) 
     
     return h
+
+def difference_months_map(df_a, df_f):
+    ''' 
+    creates a scatter_mapbox of airports with most air traffic filtered by quantile divided by region
+    quantiles of variables total & count_destinations & distance and,
+    airports filtered by type
+    '''
+    df_f_mai = df_f[df_f['day'] < '2021-06-01']
+    df_f_sep = df_f[df_f['day'] > '2021-06-01']
+    
+    df_a_mai = countTakeoffsAndLandings(df_a, df_f_mai, "mai")
+    df_a_sep = countTakeoffsAndLandings(df_a, df_f_sep, "sep")
+    
+    q_a_mai = get_quantiles_of_regions(df_a_mai, 0.993, "mai")
+    q_a_sep = get_quantiles_of_regions(df_a_sep, 0.993, "sep")
+    
+    df_a_mai_new = q_a_mai.loc[(q_a_mai['total_mai'] > q_a_mai['qt']) & (q_a_mai['count_destinations_mai'] > q_a_mai['qc'])]
+    df_a_sep_new = q_a_sep.loc[(q_a_sep['total_sep'] > q_a_sep['qt']) & (q_a_sep['count_destinations_sep'] > q_a_sep['qc'])]
+    
+    q_f_mai = df_f_mai.quantile(0.993)
+    q_f_sep = df_f_sep.quantile(0.993)
+    
+    df_flights_mai = df_f_mai.loc[df_f_mai['distance'] > q_f_mai['distance']];
+    df_flights_sep = df_f_sep.loc[df_f_sep['distance'] > q_f_sep['distance']];
+    
+    traffic_mai = df_a_mai_new.loc[df_a_mai_new['ident'].isin(df_flights_mai.origin)]
+    traffic_sep = df_a_sep_new.loc[df_a_sep_new['ident'].isin(df_flights_sep.origin)]
+    
+    return dsp.get_map_of_airports(traffic_mai, "total", "Verkehrknoten Mai"), dsp.get_map_of_airports(traffic_sep, "total", "Verkehrknoten September")
+
+##Import from fetch_data.py & datastory_plots.py
+def countTakeoffsAndLandings(df_airports, df_flights, month):
+    '''Return new df with all airports and their value_counts'''
+    
+    takeoff = pd.DataFrame(columns=["airport", "counts"])
+    takeoff['airport'] = df_flights['origin']
+    takeoff["counts"] = takeoff.groupby("airport")["airport"].transform("count")
+    
+    landing = pd.DataFrame(columns=["airport", "counts"])
+    landing['airport'] = df_flights['destination']
+    landing["counts"] = landing.groupby("airport")["airport"].transform("count")
+    
+    takeoff.drop_duplicates(inplace=True)
+    landing.drop_duplicates(inplace=True)
+    takeoffs = takeoff.set_index("airport").to_dict("index")
+    landings  = landing.set_index("airport").to_dict("index")
+    df_airports["takeoffs_"+month] = df_airports['ident'].apply(lambda a: assignCountToFrame(a, takeoffs))
+    df_airports["landings_"+month] = df_airports['ident'].apply(lambda a: assignCountToFrame(a, landings))
+    df_airports['total_'+month] = df_airports['takeoffs_'+month] + df_airports["landings_"+month]
+    df_airports = df_airports.loc[df_airports['total_'+month] != 0]
+    
+    num_dest = df_flights.groupby(['origin', 'destination']).size().reset_index().groupby('origin').size().reset_index().rename(columns={'origin':'airport', 0:'counts'}).set_index('airport').to_dict("index")
+    df_airports['count_destinations_'+month] = df_airports['ident'].apply(lambda a: assignCountToFrame(a, num_dest))
+    
+    return df_airports
+
+def assignCountToFrame(x,d):
+    '''check if value is valid, otherwise return 0'''
+    counts = 0
+    try:
+        counts = d[x]["counts"]
+    except:
+        pass
+    return counts
+
+def get_quantiles_of_regions(df_a, quantile, month):
+    '''
+    returns a new dataframe with new columns containing the calculated quantile per region.
+    '''
+    regions = df_a[df_a['total_'+month] != 0].groupby(['region', 'ident'])[['total_'+month,'count_destinations_'+month,'takeoffs_'+month,'landings_'+month]].sum().reset_index()
+    q = regions.groupby('region')[['total_'+month,'count_destinations_'+month,'takeoffs_'+month,'landings_'+month]].quantile(quantile)
+    labels = {'total_'+month:'qt', 'count_destinations_'+month:'qc', 'takeoffs_'+month:'qd', 'landings_'+month:'ql'}
+    q = q.rename(columns=labels)
+    regions = df_a.set_index('region')
+    df_a_new = regions.join(q).reset_index()
+    
+    return df_a_new
