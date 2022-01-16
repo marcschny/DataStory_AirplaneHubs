@@ -10,12 +10,12 @@ import plotly.graph_objects as go
 import seaborn as sns
 import matplotlib.ticker as ticker
 
-def load_data():
+def load_data(file_airports, file_flights):
     ''' 
     returns pre-processed data files for airports and flights 
     '''
-    df_airports = pd.read_csv("data/preprocessed/airports.csv")
-    df_flights = pd.read_csv("data/preprocessed/flights.csv")
+    df_airports = pd.read_csv(file_airports)
+    df_flights = pd.read_csv(file_flights)
     return df_airports, df_flights
 
 
