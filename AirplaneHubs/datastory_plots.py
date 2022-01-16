@@ -51,7 +51,7 @@ def traffic_map_total_destinations_distance(df_a, df_f, quantile):
     
     most_traffic = df_a_new[df_a_new['ident'].isin(df_flights.destination)]
     
-    return get_map_of_airports(most_traffic, "total", "Verkehrknoten weltweit anhand Verbindungen")
+    return get_map_of_airports(most_traffic, "total", "Verkehrsknoten weltweit anhand Verbindungen")
 
 def get_map_of_airports(df, col, title):
     '''

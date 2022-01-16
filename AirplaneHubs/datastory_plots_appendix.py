@@ -121,7 +121,7 @@ def distance_of_small_airports(df_airports, df_flights):
 
 def difference_between_months(df_flights):
     '''
-    return bar-chart with differents of flight connections
+    returns bar-chart with differences between flight connections
     '''
     df_flights["month"] = df_flights["day"].apply(lambda day: "May" if "-05-" in day else "September")
     
