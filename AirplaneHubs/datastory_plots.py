@@ -20,8 +20,7 @@ def load_data():
 
 
 def flight_connections(df):
-    ''' 
-    groups takeoffs, landings and total per region
+    ''' groups takeoffs, landings and total per region
     and returns grouped bar plot for flight traffic per region
     '''
     o = df.groupby(['region'], as_index=False)[['takeoffs', 'landings', 'total']].sum()
@@ -31,27 +30,55 @@ def flight_connections(df):
 
 def traffic_map_total_destinations(df, quantile):
     ''' 
-    groups dataframe by regions and 
-    returns scatter_mapbox of airports with most traffic
+    creates a scatter_mapbox of airports with most air traffic filtered by quantile divided by region
+    quantiles of variables total & count_destinations
     '''
-    regions = df[df['total'] != 0].groupby(['region', 'ident'])[['total','takeoffs','landings','count_destinations']].sum().reset_index()
-    q = regions.groupby('region')[['total','count_destinations','takeoffs','landings']].quantile(quantile)
-    labels = {'total':'qt', 'count_destinations':'qc', 'takeoffs':'qd', 'landings':'ql'}
-    q = q.rename(columns=labels)
-    regions = df.set_index('region')
-    df_new = regions.join(q).reset_index()
+    df_a = get_quantiles_of_regions(df, quantile)
+    most_traffic = df_a.loc[(df_a['total'] > df_a['qt']) & (df_a['count_destinations'] > df_a['qc'])]
+    
+    return get_map_of_airports(most_traffic, "total", "Weltweiter Flugverkehr nach Anzahl Flugverbindungen")
 
-    #5 biggest airports of each region
-    most_traffic = df_new.loc[(df_new['total'] > df_new['qt']) & (df_new['count_destinations'] > df_new['qc'])]
-    fig = px.scatter_mapbox(most_traffic, lat="latitude", lon="longitude",
-                      color="total", size="total",
+def traffic_map_total_destinations_distance(df_a, df_f, quantile):
+    ''' 
+    creates a scatter_mapbox of airports with most air traffic filtered by quantile divided by region
+    quantiles of variables total & count_destinations & distance
+    '''
+    q_a = get_quantiles_of_regions(df_a, quantile)
+    df_a_new = q_a.loc[(q_a['total'] > q_a['qt']) & (q_a['count_destinations'] > q_a['qc'])]
+    
+    q_f = df_f.quantile(quantile)
+    df_flights = df_f[df_f['distance'] > q_f['distance']];
+    
+    most_traffic = df_a_new[df_a_new['ident'].isin(df_flights.destination)]
+    
+    return get_map_of_airports(most_traffic, "total", "Verkehrknoten weltweit anhand Verbindungen")
+
+def get_map_of_airports(df, col, title):
+    '''
+    create a map with circles which size depends of col value
+    '''
+    fig = px.scatter_mapbox(df, lat="latitude", lon="longitude",
+                      color=col, size=col,
                       color_continuous_scale='magma',
                       size_max=24, zoom=1.2, hover_name='name', 
                       hover_data = ['municipality'], 
-                      title = 'Flughäfen mit dem meisten Flugverkehr',
+                      title = title,
                       width=900, height=540)
     fig.update_layout(mapbox_style="open-street-map", margin=dict(l=10, r=10, t=50, b=40))
     return fig
+
+def get_quantiles_of_regions(df_a, quantile):
+    '''
+    returns a new dataframe with new columns containing the calculated quantile per region.
+    '''
+    regions = df_a[df_a['total'] != 0].groupby(['region', 'ident'])[['total','takeoffs','landings','count_destinations']].sum().reset_index()
+    q = regions.groupby('region')[['total','count_destinations','takeoffs','landings']].quantile(quantile)
+    labels = {'total':'qt', 'count_destinations':'qc', 'takeoffs':'qd', 'landings':'ql'}
+    q = q.rename(columns=labels)
+    regions = df_a.set_index('region')
+    df_a_new = regions.join(q).reset_index()
+    
+    return df_a_new
 
 def show_stats(df_flights):
     ''' 
@@ -148,7 +175,7 @@ def map_longest_flight_distances(df_airports, df_flights):
     )    
 
     fig.update_layout(
-        title_text = "Länste Flugdistanzen",
+        title_text = "Distanz von Flugverbindungen",
         showlegend = False,
         width=900, height=540,
         margin=dict(l=10, r=10, t=50, b=40),
