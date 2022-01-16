@@ -18,7 +18,7 @@ Neu werden Analysen durchgeführt, um folgende Fragen zu beantworten:
 - Welche Flughäfen weisen die meisten Verbindungen auf?
 - Welches sind die längsten Distanzen die zurückgelegt werden?
 - Welche Flughäfen können als Verkehrsknotenpunkt identifiziert werden?
-- Welche Unterschiede in den Flugbewegungen sind im Sommer zum Frühling zu sehen?
+- Welche Unterschiede in den Flugbewegungen sind im Mai zum September zu sehen?
 
 
 ## Datenquellen
@@ -82,7 +82,7 @@ Wann wurden die Daten erhoben? </br>
 Siehe [Datenquellen](#Datenquellen) </br>
 
 Wie viele Datenpunkte (n) wurden erfasst? </br>
-1'048'576 Flüge und 57'422 Flughäfen </br>
+3'113'109 Flüge und 13'819 Flughäfen </br>
 
 Wurden Attribute präprozessiert? Falls ja, wie? </br>
 "Coordinates": Das Tupel "Coordinates" wurde bei jedem Flughafen gesplittet, und auf zwei neue Attribute "Latitude" und "Longitude" aufgeteilt. </br>
